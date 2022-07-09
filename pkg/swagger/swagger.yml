@@ -1,0 +1,39 @@
+consumes:
+- application/json
+info:
+  description: HTTP server in Go with Swagger endpoints definition.
+  title: go-rest-api
+  version: 0.1.0
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
+
+paths:
+  /healthz:
+    get:
+      operationId: Application Healthz
+      produces:
+      - text/plain
+      responses:
+        '200':
+          description: OK message.
+          schema:
+            type: string
+            enum:
+            - OK
+
+  /publish:
+    put:
+      description: publish a message to cloud
+      responses:
+        200:
+          description: Message is published.
+          schema:
+            type: string
+        503:
+          description: Queue not available
+          schema:
+            type: string
+  
