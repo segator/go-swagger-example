@@ -11,6 +11,7 @@
 //
 //  Consumes:
 //    - application/json
+//    - text/plain
 //
 //  Produces:
 //    - application/json

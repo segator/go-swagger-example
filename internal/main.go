@@ -34,20 +34,29 @@ func main() {
 	}()
 
 	//Connect to SQS
-	cfg, err := config.LoadDefaultConfig(context.TODO())
-	if err != nil {
-		panic("configuration error, " + err.Error())
+	var cfg aws.Config
+	awsEndpoint := os.Getenv("AWS_ENDPOINT")
+	if awsEndpoint != "" {
+		customResolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+			return aws.Endpoint{
+				PartitionID: "aws",
+				URL:         awsEndpoint,
+			}, nil
+		})
+		cfg, err = config.LoadDefaultConfig(context.TODO(), config.WithEndpointResolverWithOptions(customResolver))
+	} else {
+		cfg, err = config.LoadDefaultConfig(context.TODO())
 	}
 	queueURL = os.Getenv("SQS_QUEUE_URL")
 	if queueURL == "" {
-		//log.Fatal("SQS_QUEUE_URL must be set!")
+		log.Fatal("SQS_QUEUE_URL must be set!")
 	}
 	log.Printf("Setup queue %v to be used.\n", queueURL)
 	sqsClient = sqs.NewFromConfig(cfg)
 
 	server.Port = 8080
 	api.ApplicationHealthzHandler = operations.ApplicationHealthzHandlerFunc(Health)
-	api.PutPublishHandler = operations.PutPublishHandlerFunc(PublishMessage)
+	api.PostPublishHandler = operations.PostPublishHandlerFunc(PublishMessage)
 
 	// Start server which listening
 	if err := server.Serve(); err != nil {
@@ -59,16 +68,16 @@ func Health(operations.ApplicationHealthzParams) middleware.Responder {
 	return operations.NewApplicationHealthzOK().WithPayload("OK")
 }
 
-func PublishMessage(publishParams operations.PutPublishParams) middleware.Responder {
+func PublishMessage(publishParams operations.PostPublishParams) middleware.Responder {
 	b, err := io.ReadAll(publishParams.HTTPRequest.Body)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	output, err := SendMessage(string(b))
 	if err != nil {
-		return operations.NewPutPublishServiceUnavailable().WithPayload(err.Error())
+		return operations.NewPostPublishServiceUnavailable().WithPayload(err.Error())
 	}
-	return operations.NewPutPublishOK().WithPayload(*output.MessageId)
+	return operations.NewPostPublishOK().WithPayload(*output.MessageId)
 }
 
 func SendMessage(msg string) (*sqs.SendMessageOutput, error) {

@@ -43,11 +43,18 @@ func TestPublishMessage(t *testing.T) {
 
 		sqsClient := sqs.NewFromConfig(cfg)
 		receiveMessage, err := sqsClient.ReceiveMessage(context.TODO(), &sqs.ReceiveMessageInput{
-			QueueUrl:            sqsQueueUrl,
+			QueueUrl: sqsQueueUrl,
+
 			MaxNumberOfMessages: 1,
 			WaitTimeSeconds:     5,
 		})
+
 		sqsMessageReceive := receiveMessage.Messages[0]
+
+		sqsClient.DeleteMessage(context.TODO(), &sqs.DeleteMessageInput{
+			QueueUrl:      sqsQueueUrl,
+			ReceiptHandle: sqsMessageReceive.ReceiptHandle,
+		})
 		assert.Equal(t, sqsMessageIDResponse, *sqsMessageReceive.MessageId)
 		assert.Equal(t, message, *sqsMessageReceive.Body)
 	})

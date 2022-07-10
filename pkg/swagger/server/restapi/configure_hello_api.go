@@ -34,6 +34,7 @@ func configureAPI(api *operations.HelloAPIAPI) http.Handler {
 	// api.UseRedoc()
 
 	api.JSONConsumer = runtime.JSONConsumer()
+	api.TxtConsumer = runtime.TextConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
 	api.TxtProducer = runtime.TextProducer()
@@ -43,9 +44,9 @@ func configureAPI(api *operations.HelloAPIAPI) http.Handler {
 			return middleware.NotImplemented("operation operations.ApplicationHealthz has not yet been implemented")
 		})
 	}
-	if api.PutPublishHandler == nil {
-		api.PutPublishHandler = operations.PutPublishHandlerFunc(func(params operations.PutPublishParams) middleware.Responder {
-			return middleware.NotImplemented("operation operations.PutPublish has not yet been implemented")
+	if api.PostPublishHandler == nil {
+		api.PostPublishHandler = operations.PostPublishHandlerFunc(func(params operations.PostPublishParams) middleware.Responder {
+			return middleware.NotImplemented("operation operations.PostPublish has not yet been implemented")
 		})
 	}
 

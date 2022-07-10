@@ -11,15 +11,15 @@ import (
 	golangswaggerpaths "path"
 )
 
-// PutPublishURL generates an URL for the put publish operation
-type PutPublishURL struct {
+// PostPublishURL generates an URL for the post publish operation
+type PostPublishURL struct {
 	_basePath string
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PutPublishURL) WithBasePath(bp string) *PutPublishURL {
+func (o *PostPublishURL) WithBasePath(bp string) *PostPublishURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -27,12 +27,12 @@ func (o *PutPublishURL) WithBasePath(bp string) *PutPublishURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *PutPublishURL) SetBasePath(bp string) {
+func (o *PostPublishURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *PutPublishURL) Build() (*url.URL, error) {
+func (o *PostPublishURL) Build() (*url.URL, error) {
 	var _result url.URL
 
 	var _path = "/publish"
@@ -44,7 +44,7 @@ func (o *PutPublishURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *PutPublishURL) Must(u *url.URL, err error) *url.URL {
+func (o *PostPublishURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -55,17 +55,17 @@ func (o *PutPublishURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *PutPublishURL) String() string {
+func (o *PostPublishURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *PutPublishURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *PostPublishURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on PutPublishURL")
+		return nil, errors.New("scheme is required for a full url on PostPublishURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on PutPublishURL")
+		return nil, errors.New("host is required for a full url on PostPublishURL")
 	}
 
 	base, err := o.Build()
@@ -79,6 +79,6 @@ func (o *PutPublishURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *PutPublishURL) StringFull(scheme, host string) string {
+func (o *PostPublishURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

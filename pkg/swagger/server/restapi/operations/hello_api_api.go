@@ -39,6 +39,7 @@ func NewHelloAPIAPI(spec *loads.Document) *HelloAPIAPI {
 		BearerAuthenticator: security.BearerAuth,
 
 		JSONConsumer: runtime.JSONConsumer(),
+		TxtConsumer:  runtime.TextConsumer(),
 
 		JSONProducer: runtime.JSONProducer(),
 		TxtProducer:  runtime.TextProducer(),
@@ -46,8 +47,8 @@ func NewHelloAPIAPI(spec *loads.Document) *HelloAPIAPI {
 		ApplicationHealthzHandler: ApplicationHealthzHandlerFunc(func(params ApplicationHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation ApplicationHealthz has not yet been implemented")
 		}),
-		PutPublishHandler: PutPublishHandlerFunc(func(params PutPublishParams) middleware.Responder {
-			return middleware.NotImplemented("operation PutPublish has not yet been implemented")
+		PostPublishHandler: PostPublishHandlerFunc(func(params PostPublishParams) middleware.Responder {
+			return middleware.NotImplemented("operation PostPublish has not yet been implemented")
 		}),
 	}
 }
@@ -80,6 +81,9 @@ type HelloAPIAPI struct {
 	// JSONConsumer registers a consumer for the following mime types:
 	//   - application/json
 	JSONConsumer runtime.Consumer
+	// TxtConsumer registers a consumer for the following mime types:
+	//   - text/plain
+	TxtConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
@@ -90,8 +94,8 @@ type HelloAPIAPI struct {
 
 	// ApplicationHealthzHandler sets the operation handler for the application healthz operation
 	ApplicationHealthzHandler ApplicationHealthzHandler
-	// PutPublishHandler sets the operation handler for the put publish operation
-	PutPublishHandler PutPublishHandler
+	// PostPublishHandler sets the operation handler for the post publish operation
+	PostPublishHandler PostPublishHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -164,6 +168,9 @@ func (o *HelloAPIAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
+	if o.TxtConsumer == nil {
+		unregistered = append(unregistered, "TxtConsumer")
+	}
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
@@ -175,8 +182,8 @@ func (o *HelloAPIAPI) Validate() error {
 	if o.ApplicationHealthzHandler == nil {
 		unregistered = append(unregistered, "ApplicationHealthzHandler")
 	}
-	if o.PutPublishHandler == nil {
-		unregistered = append(unregistered, "PutPublishHandler")
+	if o.PostPublishHandler == nil {
+		unregistered = append(unregistered, "PostPublishHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -209,6 +216,8 @@ func (o *HelloAPIAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consu
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+		case "text/plain":
+			result["text/plain"] = o.TxtConsumer
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -272,10 +281,10 @@ func (o *HelloAPIAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/healthz"] = NewApplicationHealthz(o.context, o.ApplicationHealthzHandler)
-	if o.handlers["PUT"] == nil {
-		o.handlers["PUT"] = make(map[string]http.Handler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["PUT"]["/publish"] = NewPutPublish(o.context, o.PutPublishHandler)
+	o.handlers["POST"]["/publish"] = NewPostPublish(o.context, o.PostPublishHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
